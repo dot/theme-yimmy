@@ -17,9 +17,9 @@ function fish_prompt
   if not set -q __fish_prompt_char
     switch (id -u)
       case 0
-        set -g __fish_prompt_char '#'
+        set -g __fish_prompt_char '$'
       case '*'
-        set -g __fish_prompt_char '>'
+        set -g __fish_prompt_char '#'
     end
   end
 
@@ -30,6 +30,8 @@ function fish_prompt
   set -l white (set_color white)
   set -l gray (set_color normal)
   set -l brwhite (set_color -o white)
+  set -l brgreen (set_color -o green)
+  set -l green (set_color green)
 
   if test "$yimmy_solarized" = "true"
     set gray (set_color -o cyan)
@@ -42,6 +44,19 @@ function fish_prompt
   set -g __fish_git_prompt_color green
   set -g __fish_git_prompt_color_flags red
 
+  set -g __fish_git_prompt_char_cleanstate '✔'
+  set -g __fish_git_prompt_char_dirtystate '⚡'
+  set -g __fish_git_prompt_char_stagedstate '→'
+  set -g __fish_git_prompt_char_untrackedfiles '☡'
+  set -g __fish_git_prompt_char_stashstate '↩'
+  set -g __fish_git_prompt_char_upstream_ahead '+'
+  set -g __fish_git_prompt_char_upstream_behind '-'
+  # set -g __fish_git_prompt_char_invalidstate '#' '✖'
+  # set -g __fish_git_prompt_char_stateseparator ' ' '|'
+  # set -g __fish_git_prompt_char_upstream_diverged '<>'
+  # set -g __fish_git_prompt_char_upstream_equal '='
+  # set -g __fish_git_prompt_char_upstream_prefix ''
+
   # Color prompt char red for non-zero exit status
   set -l pcolor $gray
   if test $last_status -ne 0
@@ -49,7 +64,7 @@ function fish_prompt
   end
 
   # Line 1
-  echo -n $red'┌'$cyan$USER$white'@'$cyan$__fish_prompt_hostname $gray(prompt_pwd)$normal
+  echo -n $red'┌ '$cyan$USER$red' @ '$brgreen$__fish_prompt_hostname $gray(prompt_pwd)$normal
   __fish_git_prompt
   # Check for gwip; does last commit log contain --wip--?
   if begin; git log -n 1 ^/dev/null | grep -qc "\-\-wip\-\-"; end
@@ -58,5 +73,22 @@ function fish_prompt
   echo
 
   # Line 2
-  echo -n $red'└'$pcolor$__fish_prompt_char $normal
+  echo -n $red'└ '$pcolor$__fish_prompt_char $normal
+end
+
+# rbenv_version
+function _rb_version
+  if test -x (which rbenv)
+    echo (rbenv version 2 ^/dev/null | awk '{print $1}')
+  else
+    echo 'system'
+  end
+end
+
+function fish_right_prompt
+  set -l normal (set_color normal)
+  set -l cyan (set_color cyan)
+  set -l rv $cyan(_rb_version)
+
+  echo -n $cyan'['$rv$cyan']'$normal
 end
