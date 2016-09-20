@@ -78,9 +78,9 @@ end
 
 # rbenv_version
 function _rb_version
-  if test -x (which rbenv)
+  command --search rbenv >/dev/null; and begin
     echo (rbenv version 2 ^/dev/null | awk '{print $1}')
-  else
+  end; or begin
     echo 'system'
   end
 end
